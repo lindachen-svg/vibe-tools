@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>呆萌AI心情急救站</title>
+<style>
+  :root{
+    --bg1:#FFF6EE;
+    --bg2:#FDE8EF;
+    --card:#FFFFFF;
+    --accent:#FF9EB5;
+    --accent2:#7EC8E3;
+    --text:#4A3F41;
+    --soft:#FFD6E0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    color:var(--text);
+  }
+  .app{
+    width:100%;
+    max-width:460px;
+    background:var(--card);
+    border-radius:28px;
+    padding:28px 26px 24px;
+    box-shadow:0 18px 40px rgba(255,158,181,0.25);
+    position:relative;
+    overflow:hidden;
+  }
+  .app::before{
+    content:"";
+    position:absolute;
+    top:-60px;
+    right:-60px;
+    width:160px;
+    height:160px;
+    background:var(--soft);
+    border-radius:50%;
+    opacity:0.6;
+  }
+  h1{
+    font-size:22px;
+    margin:0 0 4px;
+    position:relative;
+  }
+  .sub{
+    font-size:13px;
+    color:#9b8d8f;
+    margin-bottom:20px;
+    position:relative;
+  }
+  .bot{
+    width:92px;
+    height:92px;
+    margin:0 auto 14px;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:52px;
+    background:linear-gradient(145deg,var(--accent2),#A7DBF2);
+    border-radius:50%;
+    box-shadow:0 10px 24px rgba(126,200,227,0.4);
+    transition:transform .25s ease;
+  }
+  .bot.talk{animation:bounce .5s ease;}
+  @keyframes bounce{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.12) rotate(-4deg);}
+    70%{transform:scale(0.96) rotate(3deg);}
+    100%{transform:scale(1);}
+  }
+  .bubble{
+    background:#FAFAFA;
+    border:1px solid #F0E6E8;
+    border-radius:18px;
+    padding:16px 18px;
+    min-height:64px;
+    font-size:15px;
+    line-height:1.6;
+    margin-bottom:18px;
+    position:relative;
+  }
+  .bubble::after{
+    content:"";
+    position:absolute;
+    top:-10px;
+    left:50%;
+    transform:translateX(-50%);
+    border-width:0 10px 10px 10px;
+    border-style:solid;
+    border-color:transparent transparent #FAFAFA transparent;
+  }
+  .moods{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .mood-btn{
+    border:none;
+    background:#FFF0F3;
+    border-radius:16px;
+    padding:12px 4px;
+    font-size:24px;
+    cursor:pointer;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .mood-btn:hover{transform:translateY(-3px);}
+  .mood-btn:active{transform:scale(0.92);}
+  .mood-btn.selected{
+    background:var(--accent);
+    box-shadow:0 6px 14px rgba(255,158,181,0.5);
+  }
+  .mood-label{
+    text-align:center;
+    font-size:11px;
+    color:#9b8d8f;
+    margin-top:-10px;
+    margin-bottom:16px;
+  }
+  textarea{
+    width:100%;
+    resize:none;
+    border:1px solid #F0E6E8;
+    border-radius:16px;
+    padding:12px 14px;
+    font-size:14px;
+    font-family:inherit;
+    min-height:64px;
+    margin-bottom:14px;
+    outline:none;
+    transition:border-color .2s;
+  }
+  textarea:focus{border-color:var(--accent);}
+  .actions{
+    display:flex;
+    gap:10px;
+  }
+  button.main{
+    flex:1;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:16px;
+    padding:13px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform .15s ease, background .15s ease;
+  }
+  button.main:hover{background:#ff86a3;}
+  button.main:active{transform:scale(0.97);}
+  button.ghost{
+    background:transparent;
+    border:1px solid #F0E6E8;
+    color:#9b8d8f;
+    border-radius:16px;
+    padding:13px 16px;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .history{
+    margin-top:20px;
+    border-top:1px dashed #F0E6E8;
+    padding-top:14px;
+  }
+  .history h2{
+    font-size:13px;
+    color:#9b8d8f;
+    margin:0 0 10px;
+    font-weight:600;
+  }
+  .history-list{
+    max-height:150px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .history-item{
+    background:#FFF9FB;
+    border-radius:12px;
+    padding:9px 12px;
+    font-size:12.5px;
+    color:#7a6c6e;
+    display:flex;
+    gap:8px;
+    align-items:flex-start;
+  }
+  .history-item .tag{
+    flex-shrink:0;
+    font-size:16px;
+  }
+  .empty{
+    font-size:12px;
+    color:#c7b9bb;
+    text-align:center;
+    padding:10px 0;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <h1>呆萌AI心情急救站 🩹</h1>
+    <div class="sub">選一個現在的心情，再跟我說說發生什麼事，我陪你聊聊。</div>
+
+    <div class="bot" id="bot">🐣</div>
+    <div class="bubble" id="bubble">嗨～我是呆萌小助手！今天過得怎麼樣呢？先點一個表情告訴我你的心情吧。</div>
+
+    <div class="moods" id="moods">
+      <button class="mood-btn" data-mood="開心" data-emoji="😄">😄</button>
+      <button class="mood-btn" data-mood="普通" data-emoji="🙂">🙂</button>
+      <button class="mood-btn" data-mood="煩躁" data-emoji="😤">😤</button>
+      <button class="mood-btn" data-mood="低落" data-emoji="😔">😔</button>
+      <button class="mood-btn" data-mood="焦慮" data-emoji="😰">😰</button>
+      <button class="mood-btn" data-mood="累" data-emoji="🥱">🥱</button>
+      <button class="mood-btn" data-mood="興奮" data-emoji="🤩">🤩</button>
+      <button class="mood-btn" data-mood="放空" data-emoji="😶">😶</button>
+    </div>
+    <div class="mood-label" id="moodLabel">還沒選擇心情</div>
+
+    <textarea id="note" placeholder="（選填）想多說一點嗎？例如：今天作業交不完、跟朋友吵架了..."></textarea>
+
+    <div class="actions">
+      <button class="main" id="submitBtn">跟呆萌小助手說</button>
+      <button class="ghost" id="clearBtn">清空紀錄</button>
+    </div>
+
+    <div class="history">
+      <h2>最近的心情紀錄</h2>
+      <div class="history-list" id="historyList">
+        <div class="empty">目前還沒有紀錄</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const moods = document.querySelectorAll('.mood-btn');
+  const moodLabel = document.getElementById('moodLabel');
+  const bubble = document.getElementById('bubble');
+  const bot = document.getElementById('bot');
+  const note = document.getElementById('note');
+  const submitBtn = document.getElementById('submitBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const historyList = document.getElementById('historyList');
+
+  let selectedMood = null;
+  let selectedEmoji = null;
+
+  const responses = {
+    "開心": [
+      "太好了！這種好心情要記下來，今天有什麼特別開心的事嗎？",
+      "看到你開心我也跟著開心起來了！繼續保持這個狀態吧～"
+    ],
+    "普通": [
+      "平淡的一天也是很棒的一天，穩穩的過也是一種幸福喔。",
+      "普通也沒關係，不是每天都要很精彩，休息一下也很好。"
+    ],
+    "煩躁": [
+      "聽起來有點煩躁呢，要不要先深呼吸三次，我陪你一起。",
+      "煩躁的時候先別逼自己做決定，給自己一點緩衝的時間吧。"
+    ],
+    "低落": [
+      "辛苦了，先抱抱你。低落的時候不用急著變好，慢慢來就好。",
+      "情緒低落很正常，不是你的錯，今天先對自己溫柔一點。"
+    ],
+    "焦慮": [
+      "焦慮的感覺不好受吧，先把眼前最小的一件事做完就好，不用想全部。",
+      "深呼吸，你已經很努力了。一步一步來，我陪著你。"
+    ],
+    "累": [
+      "辛苦了，身體在提醒你該休息了，喝口水、伸個懶腰吧。",
+      "累的時候最重要的就是睡飽，今天早點休息好嗎？"
+    ],
+    "興奮": [
+      "哇感覺你充滿活力！要不要把這股能量用在想做的事情上？",
+      "興奮感染到我了！記得保留一點體力，別一口氣燒光喔。"
+    ],
+    "放空": [
+      "放空也是一種充電方式，讓腦袋休息一下沒關係。",
+      "偶爾什麼都不想也很好，給自己一點空白的時間吧。"
+    ]
+  };
+
+  const historyData = [];
+
+  moods.forEach(btn => {
+    btn.addEventListener('click', () => {
+      moods.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedMood = btn.dataset.mood;
+      selectedEmoji = btn.dataset.emoji;
+      moodLabel.textContent = "目前心情：" + selectedMood + " " + selectedEmoji;
+    });
+  });
+
+  function randomFrom(arr){
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function renderHistory(){
+    if(historyData.length === 0){
+      historyList.innerHTML = '<div class="empty">目前還沒有紀錄</div>';
+      return;
+    }
+    historyList.innerHTML = historyData
+      .slice()
+      .reverse()
+      .map(item => `
+        <div class="history-item">
+          <span class="tag">${item.emoji}</span>
+          <span>${item.time}　${item.mood}${item.note ? '：' + item.note : ''}</span>
+        </div>
+      `).join('');
+  }
+
+  submitBtn.addEventListener('click', () => {
+    if(!selectedMood){
+      bubble.textContent = "先點一個表情告訴我你現在的心情嘛！";
+      bot.classList.remove('talk');
+      void bot.offsetWidth;
+      bot.classList.add('talk');
+      return;
+    }
+
+    const reply = randomFrom(responses[selectedMood]);
+    bubble.textContent = reply;
+    bot.classList.remove('talk');
+    void bot.offsetWidth;
+    bot.classList.add('talk');
+
+    const now = new Date();
+    const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+
+    historyData.push({
+      mood: selectedMood,
+      emoji: selectedEmoji,
+      note: note.value.trim(),
+      time: timeStr
+    });
+
+    renderHistory();
+    note.value = "";
+  });
+
+  clearBtn.addEventListener('click', () => {
+    historyData.length = 0;
+    renderHistory();
+    bubble.textContent = "紀錄清空囉，我們重新開始吧！";
+    moods.forEach(b => b.classList.remove('selected'));
+    selectedMood = null;
+    moodLabel.textContent = "還沒選擇心情";
+  });
+</script>
+</body>
+</html>
